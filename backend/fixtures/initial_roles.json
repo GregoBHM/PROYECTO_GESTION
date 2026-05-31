@@ -1,0 +1,9 @@
+[
+  {"model": "users.role", "pk": 1, "fields": {"name": "solicitante"}},
+  {"model": "users.role", "pk": 2, "fields": {"name": "director"}},
+  {"model": "users.role", "pk": 3, "fields": {"name": "gestor_config"}},
+  {"model": "users.role", "pk": 4, "fields": {"name": "analista"}},
+  {"model": "users.role", "pk": 5, "fields": {"name": "ccb"}},
+  {"model": "users.role", "pk": 6, "fields": {"name": "desarrollador"}},
+  {"model": "users.role", "pk": 7, "fields": {"name": "qa"}}
+]

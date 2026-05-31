@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: gestiocambios_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gestiocambios_backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: core.settings.production
+      DB_HOST: db
+    volumes:
+      - ./backend:/app
+      - media_files:/app/media
+      - static_files:/app/staticfiles
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gestiocambios_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    expose:
+      - "80"
+
+  nginx:
+    image: nginx:alpine
+    container_name: gestiocambios_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - static_files:/app/staticfiles:ro
+      - media_files:/app/media:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
+  media_files:
+  static_files:
